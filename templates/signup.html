@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign up — Flask Blog{% endblock %}
+{% block content %}
+<h1>Create Account</h1>
+<form class="form" method="POST">
+  <label class="field">
+    <span>Username</span>
+    <input class="input" type="text" name="username" required />
+  </label>
+  <label class="field">
+    <span>Email</span>
+    <input class="input" type="email" name="email" required />
+  </label>
+  <label class="field">
+    <span>Password</span>
+    <input class="input" type="password" name="password" required />
+  </label>
+  <label class="field">
+    <span>Confirm Password</span>
+    <input class="input" type="password" name="confirm" required />
+  </label>
+  <div class="actions">
+    <button class="btn btn-primary" type="submit">Sign up</button>
+    <a class="btn btn-ghost" href="{{ url_for('login') }}">I already have an account</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — Flask Blog{% endblock %}
+
+{% block content %}
+<article class="article">
+  <header>
+    <h1>{{ post.title }}</h1>
+    <p class="muted">
+      By {{ post.author.username if post.author else 'Unknown' }}
+      • {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+    </p>
+  </header>
