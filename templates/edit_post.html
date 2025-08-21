@@ -2,7 +2,7 @@
 {% block title %}Edit Post — Flask Blog{% endblock %}
 {% block content %}
 <h1>Edit Post</h1>
-<form class="form" method="POST">
+<form class="form" method="POST" action="{{ url_for('edit_post', post_id=post.id) }}">
   <label class="field">
     <span>Title</span>
     <input class="input" type="text" name="title" value="{{ post.title }}" required />

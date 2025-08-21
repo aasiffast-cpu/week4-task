@@ -161,21 +161,23 @@ def add_post():
         return redirect(url_for("dashboard"))
     return render_template("add_post.html", form=form)
 
-@app.route("/edit/<int:post_id>", methods=["GET", "POST"])
+@app.route('/edit/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
-    if post.user_id != current_user.id:
+
+    # sirf apne posts edit karne ki permission
+    if post.author != current_user:
         abort(403)
 
-    form = PostForm(obj=post)
-    if form.validate_on_submit():
-        post.title = form.title.data.strip()
-        post.content = form.content.data.strip()
+    if request.method == 'POST':
+        post.title = request.form['title']
+        post.content = request.form['content']
         db.session.commit()
-        flash("Post updated.", "success")
-        return redirect(url_for("dashboard"))
-    return render_template("edit_post.html", form=form, post=post)
+        flash('Post updated successfully!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('edit_post.html', post=post)
 
 @app.route("/delete/<int:post_id>", methods=["POST"])
 @login_required
