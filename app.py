@@ -4,22 +4,24 @@ from flask_login import (
     LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Email, Length, EqualTo
 from datetime import datetime
 import os
 
+# app steup
 app = Flask(__name__)
-
-# ---- Config ----
 app.config["SECRET_KEY"] = "change-this-secret"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# ---- DB & Login setup ----
+# database or login
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-login_manager.login_view = "login"  # redirect here if not logged in
+login_manager.login_view = "login"
 
-# ---- Models ----
+# Models
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(60), unique=True, nullable=False)
@@ -40,11 +42,31 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
+# Forms 
+class LoginForm(FlaskForm):
+    username_email = StringField('Username or Email', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+
+class SignupForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=60)])
+    email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=160)])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+# Login loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ---- Routes: Public ----
+# Routes: Public
 @app.route("/")
 def index():
     q = request.args.get("q", "").strip()
@@ -62,26 +84,19 @@ def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template("view_post.html", post=post)
 
-# ---- Auth ----
+#Auth
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))
 
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-        confirm = request.form.get("confirm", "")
+    form = SignupForm()
+    if form.validate_on_submit():
+        username = form.username.data.strip()
+        email = form.email.data.strip().lower()
+        password = form.password.data
 
-        # Basic validation
-        if not username or not email or not password:
-            flash("All fields are required.", "error")
-            return redirect(url_for("signup"))
-        if password != confirm:
-            flash("Passwords do not match.", "error")
-            return redirect(url_for("signup"))
-
+        # Check existing user/email
         if User.query.filter_by(username=username).first():
             flash("Username already taken.", "error")
             return redirect(url_for("signup"))
@@ -96,28 +111,27 @@ def signup():
         flash("Account created. Please log in.", "success")
         return redirect(url_for("login"))
 
-    return render_template("signup.html")
+    return render_template("signup.html", form=form)
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/login', methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+        return redirect(url_for('dashboard'))
 
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter(
+            (User.username == form.username_email.data) | 
+            (User.email == form.username_email.data)
+        ).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember.data)
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid username/email or password.', 'danger')
 
-        user = User.query.filter_by(username=username).first()
-        if not user or not user.check_password(password):
-            flash("Invalid username or password.", "error")
-            return redirect(url_for("login"))
-
-        login_user(user, remember=True)
-        flash("Logged in successfully.", "success")
-        next_url = request.args.get("next")
-        return redirect(next_url or url_for("dashboard"))
-
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 @app.route("/logout")
 @login_required
@@ -126,7 +140,7 @@ def logout():
     flash("Logged out.", "success")
     return redirect(url_for("index"))
 
-# ---- User area ----
+#  User area 
 @app.route("/dashboard")
 @login_required
 def dashboard():
@@ -136,18 +150,16 @@ def dashboard():
 @app.route("/add", methods=["GET", "POST"])
 @login_required
 def add_post():
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        content = request.form.get("content", "").strip()
-        if not title or not content:
-            flash("Title and content are required.", "error")
-            return redirect(url_for("add_post"))
-        post = Post(title=title, content=content, user_id=current_user.id)
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data.strip(),
+                    content=form.content.data.strip(),
+                    user_id=current_user.id)
         db.session.add(post)
         db.session.commit()
         flash("Post created.", "success")
         return redirect(url_for("dashboard"))
-    return render_template("add_post.html")
+    return render_template("add_post.html", form=form)
 
 @app.route("/edit/<int:post_id>", methods=["GET", "POST"])
 @login_required
@@ -155,18 +167,15 @@ def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.user_id != current_user.id:
         abort(403)
-    if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        content = request.form.get("content", "").strip()
-        if not title or not content:
-            flash("Title and content are required.", "error")
-            return redirect(url_for("edit_post", post_id=post.id))
-        post.title = title
-        post.content = content
+
+    form = PostForm(obj=post)
+    if form.validate_on_submit():
+        post.title = form.title.data.strip()
+        post.content = form.content.data.strip()
         db.session.commit()
         flash("Post updated.", "success")
         return redirect(url_for("dashboard"))
-    return render_template("edit_post.html", post=post)
+    return render_template("edit_post.html", form=form, post=post)
 
 @app.route("/delete/<int:post_id>", methods=["POST"])
 @login_required
@@ -179,7 +188,7 @@ def delete_post(post_id):
     flash("Post deleted.", "success")
     return redirect(url_for("dashboard"))
 
-# ---- Errors ----
+#  Error handlers
 @app.errorhandler(403)
 def forbidden(e):
     return render_template("403.html"), 403
@@ -192,9 +201,8 @@ def not_found(e):
 def server_error(e):
     return render_template("500.html"), 500
 
-# ---- Main ----
+#  Main
 if __name__ == "__main__":
-    # Ensure folders exist (for first run convenience)
     os.makedirs("templates", exist_ok=True)
     os.makedirs("static", exist_ok=True)
     with app.app_context():

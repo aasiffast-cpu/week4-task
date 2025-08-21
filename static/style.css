@@ -1,0 +1,464 @@
+/* ===============  Design Tokens  =============== */
+
+:root {
+    --bg: #0b0f19;
+    --bg-alt: #0e1422;
+    --surface: #121a2a;
+    --surface-2: #172135;
+    --text: #e6e8ee;
+    --muted: #9aa4b2;
+    --border: #223049;
+    --brand: #6ee7b7;
+    /* teal-mint */
+    --brand-ink: #053d32;
+    --ring: #22d3ee;
+    /* cyan */
+    --danger: #ef4444;
+    /* red */
+    --warning: #f59e0b;
+    /* amber */
+    --success: #22c55e;
+    /* green */
+    --radius: 14px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .02);
+}
+
+
+/* Light mode */
+
+@media (prefers-color-scheme: light) {
+     :root {
+        --bg: #f6f7fb;
+        --bg-alt: #eef1f7;
+        --surface: #ffffff;
+        --surface-2: #f9fafb;
+        --text: #0f172a;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --brand: #0ea5e9;
+        --brand-ink: #ffffff;
+        --ring: #06b6d4;
+        --danger: #dc2626;
+    }
+}
+
+
+/* ===============  Base  =============== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans";
+    color: var(--text);
+    background: radial-gradient(1000px 700px at 10% -10%, rgba(99, 102, 241, .12), transparent 60%), radial-gradient(1000px 700px at 90% -10%, rgba(34, 211, 238, .12), transparent 60%), linear-gradient(180deg, var(--bg-alt), var(--bg));
+    line-height: 1.6;
+}
+
+.container {
+    width: min(1100px, 92%);
+    margin: 0 auto;
+}
+
+
+/* ===============  Header / Nav  =============== */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--bg), transparent 25%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 64px;
+}
+
+.brand {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 900;
+    letter-spacing: .3px;
+    font-size: clamp(18px, 2.2vw, 22px);
+}
+
+.brand span {
+    color: var(--brand);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.nav-links a,
+.nav-links .btn {
+    text-decoration: none;
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+}
+
+.nav-links a:hover {
+    border-color: var(--border);
+}
+
+
+/* ===============  Buttons  =============== */
+
+.btn {
+    --_bg: var(--surface-2);
+    --_ink: var(--text);
+    --_bd: var(--border);
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+    padding: .7rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--_bd);
+    background: var(--_bg);
+    color: var(--_ink);
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform .06s ease, filter .15s ease, box-shadow .15s ease, background .15s, border-color .15s;
+    box-shadow: var(--shadow);
+}
+
+.btn:hover {
+    filter: brightness(1.06);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    --_bg: var(--brand);
+    --_ink: var(--brand-ink);
+    --_bd: color-mix(in oklab, var(--brand), black 8%);
+}
+
+.btn-outline {
+    --_bg: transparent;
+    --_ink: var(--brand);
+    --_bd: var(--brand);
+}
+
+.btn-ghost {
+    --_bg: transparent;
+    --_ink: var(--text);
+    --_bd: var(--border);
+}
+
+.btn-danger {
+    --_bg: color-mix(in oklab, var(--danger), black 10%);
+    --_ink: #fff;
+    --_bd: var(--danger);
+}
+
+
+/* ===============  Flash Messages  =============== */
+
+.flash-wrap {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0;
+}
+
+.flash {
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.flash.success {
+    outline: 2px solid color-mix(in oklab, var(--success), var(--ring));
+}
+
+.flash.error {
+    outline: 2px solid var(--danger);
+}
+
+.flash.warning {
+    outline: 2px solid var(--warning);
+}
+
+
+/* ===============  Page Head / Search  =============== */
+
+.page-head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 22px 0 12px;
+    flex-wrap: wrap;
+}
+
+.search {
+    display: flex;
+    gap: 8px;
+}
+
+.search input {
+    width: 260px;
+    max-width: 60vw;
+    padding: .75rem .9rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.search input:focus {
+    outline: 2px solid var(--ring);
+    border-color: transparent;
+}
+
+
+/* ===============  Cards / Grid  =============== */
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.card {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+}
+
+.card-header {
+    margin-bottom: 8px;
+}
+
+.card-title {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+}
+
+.card-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.card-title a:hover {
+    text-decoration: underline;
+}
+
+.muted {
+    color: var(--muted);
+    font-size: .92rem;
+}
+
+.card-body {
+    margin: 8px 0 10px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+/* ===============  Article Page  =============== */
+
+.article {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+
+.article h1 {
+    margin-top: 0;
+}
+
+.article-body {
+    margin-top: 10px;
+    font-size: 1.05rem;
+}
+
+.article-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+/* ===============  Forms  =============== */
+
+.form {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+}
+
+.field span {
+    font-weight: 700;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: .85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color .15s ease, outline-color .15s ease, background .15s ease;
+}
+
+.input:focus,
+.textarea:focus {
+    outline: 2px solid var(--ring);
+    border-color: transparent;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 180px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+/* ===============  Lists (Dashboard)  =============== */
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0;
+}
+
+.list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
+}
+
+.list .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+/* ===============  Footer  =============== */
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    padding: 22px 0;
+    text-align: center;
+    color: var(--muted);
+}
+
+
+/* ===============  Utility / States  =============== */
+
+.inline {
+    display: inline;
+}
+
+.empty {
+    text-align: center;
+    padding: 46px 0;
+    color: var(--muted);
+    background: radial-gradient(600px 280px at 50% -10%, rgba(110, 231, 183, .09), transparent 60%), radial-gradient(600px 280px at 50% 120%, rgba(14, 165, 233, .08), transparent 60%);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+}
+
+h1,
+h2,
+h3 {
+    letter-spacing: .2px;
+}
+
+a {
+    color: var(--brand);
+}
+
+
+/* ===============  Small Screens  =============== */
+
+@media (max-width: 520px) {
+    .nav-links {
+        gap: 6px;
+    }
+    .search input {
+        width: 60vw;
+    }
+    .list li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* ===============  Extras: Pretty error pages  =============== */
+
+.error-page {
+    text-align: center;
+    padding: 64px 0;
+}
+
+.error-page h1 {
+    font-size: clamp(48px, 10vw, 84px);
+    line-height: 1;
+    margin: 0 0 8px;
+}
+
+.error-page p {
+    color: var(--muted);
+}
