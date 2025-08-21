@@ -1,12 +1,35 @@
-{% extends "base.html" %}
-{% block title %}{{ post.title }} — Flask Blog{% endblock %}
+<!-- templates/view_post.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 50px auto; background: #fff; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
+        h1 { font-size: 2em; margin-bottom: 10px; }
+        p { line-height: 1.6; font-size: 1.1em; }
+        small { color: #555; }
+        a { text-decoration: none; color: #007BFF; margin-right: 15px; }
+        a:hover { text-decoration: underline; }
+        .buttons { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="buttons">
+            <a href="{{ url_for('index') }}">Home</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            {% endif %}
+        </div>
 
-{% block content %}
-<article class="article">
-  <header>
-    <h1>{{ post.title }}</h1>
-    <p class="muted">
-      By {{ post.author.username if post.author else 'Unknown' }}
-      • {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
-    </p>
-  </header>
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+        <small>
+            By {{ post.author.username }} | Created on {{ post.created_at.strftime('%b %d, %Y %H:%M') }}
+        </small>
+    </div>
+</body>
+</html>
